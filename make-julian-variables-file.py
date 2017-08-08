@@ -9,7 +9,7 @@ import json
 import h5py
 import numpy
 from argparse import ArgumentParser
-from itertools import chain, cycle, product
+from itertools import chain, cycle, product, count
 from math import ceil, floor
 import sys
 
@@ -42,8 +42,9 @@ def run():
     # print(f'number of repeats: {n_repeats}')
 
     def repeat_generator():
-        for num, var in product(range(ceil(n_repeats)), repeat_vars):
-            yield f'track_{num}_{var}'
+        for num in count():
+            for var in repeat_vars:
+                yield f'track_{num}_{var}'
 
     name_generator = chain(head_vars, repeat_generator())
 
