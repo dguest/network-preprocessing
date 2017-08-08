@@ -9,7 +9,8 @@ import json
 import h5py
 import numpy
 from argparse import ArgumentParser
-from itertools import chain
+from itertools import chain, cycle, product
+from math import ceil
 
 def get_args():
     parser = ArgumentParser(description=__doc__)
@@ -27,10 +28,10 @@ def run():
     with open(args.variable_names_file,'r') as vars_file:
         input_names = json.load(vars_file)
 
-    input_mean = numpy.load(args.mean)
-    input_std = numpy.load(args.standard_deviation)
-    assert input_std.size == input_mean.size
-    assert input_mean.size == n_inputs
+    mean = numpy.load(args.mean)
+    std = numpy.load(args.standard_deviation)
+    assert std.size == mean.size
+    assert mean.size == n_inputs
 
     head_vars = input_names.get('header',[])
     repeat_vars = input_names.get('repeat', [])
@@ -38,6 +39,15 @@ def run():
     n_repeats = (n_inputs - len(head_vars)) / n_repeat_vars
     print(f'n_inputs: {n_inputs}, repeating: {n_repeat_vars}')
     print(f'number of repeats: {n_repeats}')
+
+    def repeat_generator():
+        for num, var in product(range(ceil(n_repeats)), repeat_vars):
+            yield f'track_{num}_{var}'
+
+    name_generator = chain(head_vars, repeat_generator())
+
+    for num, (vname, mean, std) in enumerate(zip(name_generator, mean, std)):
+        print(num, vname)
     # assert n_repeats * len(head_vars) + len(head_vars) == n_inputs
 
 if __name__ == '__main__':
