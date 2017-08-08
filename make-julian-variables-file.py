@@ -10,7 +10,8 @@ import h5py
 import numpy
 from argparse import ArgumentParser
 from itertools import chain, cycle, product
-from math import ceil
+from math import ceil, floor
+import sys
 
 def get_args():
     parser = ArgumentParser(description=__doc__)
@@ -37,8 +38,8 @@ def run():
     repeat_vars = input_names.get('repeat', [])
     n_repeat_vars = len(repeat_vars)
     n_repeats = (n_inputs - len(head_vars)) / n_repeat_vars
-    print(f'n_inputs: {n_inputs}, repeating: {n_repeat_vars}')
-    print(f'number of repeats: {n_repeats}')
+    # print(f'n_inputs: {n_inputs}, repeating: {n_repeat_vars}')
+    # print(f'number of repeats: {n_repeats}')
 
     def repeat_generator():
         for num, var in product(range(ceil(n_repeats)), repeat_vars):
@@ -46,9 +47,22 @@ def run():
 
     name_generator = chain(head_vars, repeat_generator())
 
+    out_dict_inputs_list = []
     for num, (vname, mean, std) in enumerate(zip(name_generator, mean, std)):
-        print(num, vname)
-    # assert n_repeats * len(head_vars) + len(head_vars) == n_inputs
+        new_input = {
+            'name': vname,
+            'offset': float(-mean),
+            'scale': float(1/std) if std else 1.0
+        }
+        out_dict_inputs_list.append(new_input)
 
+    n_inputs_listed = len(out_dict_inputs_list)
+    if n_inputs_listed != n_inputs:
+        sys.stderr.write(
+            f'error could not create {n_inputs} inputs, '
+            f'made {n_inputs_listed}\n')
+
+    out_dict = {'inputs': out_dict_inputs_list, 'class_labels': 'prob'}
+    sys.stdout.write(json.dumps(out_dict, indent=2))
 if __name__ == '__main__':
     run()
