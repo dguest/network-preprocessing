@@ -63,7 +63,7 @@ def run():
             f'error could not create {n_inputs} inputs, '
             f'made {n_inputs_listed}\n')
 
-    out_dict = {'inputs': out_dict_inputs_list, 'class_labels': 'prob'}
+    out_dict = {'inputs': out_dict_inputs_list, 'class_labels': ['higgs_prob']}
     sys.stdout.write(json.dumps(out_dict, indent=2))
 
 if __name__ == '__main__':
