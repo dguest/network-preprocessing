@@ -65,5 +65,9 @@ def run():
 
     out_dict = {'inputs': out_dict_inputs_list, 'class_labels': 'prob'}
     sys.stdout.write(json.dumps(out_dict, indent=2))
+
 if __name__ == '__main__':
-    run()
+    try:
+        run()
+    except BrokenPipeError:
+        pass
