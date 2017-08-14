@@ -38,12 +38,11 @@ def run():
     repeat_vars = input_names.get('repeat', [])
     n_repeat_vars = len(repeat_vars)
     n_repeats = (n_inputs - len(head_vars)) / n_repeat_vars
-    # print(f'n_inputs: {n_inputs}, repeating: {n_repeat_vars}')
-    # print(f'number of repeats: {n_repeats}')
+    assert floor(n_repeats) == n_repeats
 
     def repeat_generator():
-        for num in count():
-            for var in repeat_vars:
+        for var in repeat_vars:
+            for num in range(floor(n_repeats)):
                 yield f'track_{num}_{var}'
 
     name_generator = chain(head_vars, repeat_generator())
